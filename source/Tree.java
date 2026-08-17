@@ -1,6 +1,7 @@
 //Creating the states for tree
 public class Tree {
     private String state;
+    public boolean isBurning;
 
     public Tree (){
         state = "GREEN"; //green
