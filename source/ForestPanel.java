@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-public class ForestPanel extends JPanel {
+public class ForestPanel extends JPanel{
     private Forest forest;
     private Water water;
 

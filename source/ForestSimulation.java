@@ -1,15 +1,16 @@
 import java.awt.*;
-
+import java.awt.event.*;
 import javax.swing.JFrame;
 
-public class ForestSimulation{
+public class ForestSimulation implements KeyListener {
 
     private Forest forest;
     private Fire fire;
     private Water water;
-    private Wind wind;
+    //private Wind wind;
 
-    private ForestPanel forestPanel;
+    private ForestPanel panel;
+    private JFrame frame;
 
     public ForestSimulation(){
         //forest
@@ -17,15 +18,20 @@ public class ForestSimulation{
         //objects
         fire = new Fire();
         water = new Water(0, 0);
-        wind = new Wind();
+        //wind = new Wind();
 
         //GUI
-        forestPanel = new ForestPanel(forest, water);
-        JFrame frame = new JFrame("Forest Simulation");
+        panel = new ForestPanel(forest, water);
+        frame = new JFrame("Forest Simulation");
 
-        frame.add(forestPanel);
+        frame.add(panel);
         frame.pack();
-        
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.addKeyListener(this);
+        frame.setFocusable(true);
+        frame.setVisible(true);
     }
 
     public void startRandomFire() {
@@ -33,9 +39,11 @@ public class ForestSimulation{
         int row = (int) (Math.random() * forest.getRows());
         int col = (int) (Math.random() * forest.getColumns());
         Tree tree = forest.getTree(row, col);
-        fire.setFire(tree);
+        fire.startFire(tree);
 
         System.out.println("Random fire started at (" + row + ", " + col + ")");
+
+        panel.repaint();
     }
 
     //WATER
@@ -59,9 +67,40 @@ public class ForestSimulation{
         }
     }
 
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode()== KeyEvent.VK_UP) {
+            moveWater("UP");
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            moveWater("DOWN");
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            moveWater("LEFT");
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            moveWater("RIGHT");
+        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            Tree tree = forest.getTree(water.getRow(), water.getCol());
+            if (tree.getState().equals("BURNING")) {
+                water.extinguish(tree);
+            }
+        }
+
+        panel.repaint();
+    }
+    @Override
+    public void keyReleased(KeyEvent e) {
+        // Not used
+    }
+    @Override
+    public void keyTyped(KeyEvent e) {
+        // Not used
+    }
+
     //MAIN SIMULATION
     public void runSimulation() {
         System.out.println("Forest Simulation Started");
+        forest.displayForest();
+
+        startRandomFire();
         forest.displayForest();
 
     }

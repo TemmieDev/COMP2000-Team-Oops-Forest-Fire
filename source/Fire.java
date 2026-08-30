@@ -1,6 +1,6 @@
 public class Fire {
 
-    public void setFire(Tree tree) {
+    public void startFire(Tree tree) {
         
         if (tree.getState().equals("GREEN")) {
             tree.burn();
