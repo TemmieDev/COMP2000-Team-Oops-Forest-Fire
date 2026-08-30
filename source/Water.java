@@ -15,8 +15,8 @@ public class Water {
         }
     }
 
-    public void moveDown() {
-        if (row < 5) { // Assuming a 6x6 grid
+    public void moveDown(int maxRows) {
+        if (row < maxRows - 1) {
             row++;
         }
     }
@@ -27,8 +27,8 @@ public class Water {
         }
     }
 
-    public void moveRight() {
-        if (col < 5) { // Assuming a 6x6 grid
+    public void moveRight(int maxCols) {
+        if (col < maxCols - 1) {
             col++;
         }
     }
