@@ -10,19 +10,27 @@ public class Water {
 
     //move the water to a new position
     public void moveUp() {
-        row--;
+        if (row > 0) {
+            row--;
+        }
     }
 
     public void moveDown() {
-        row++;
+        if (row < 5) { // Assuming a 6x6 grid
+            row++;
+        }
     }
 
     public void moveLeft() {
-        col--;
+        if (col > 0) {
+            col--;
+        }
     }
 
     public void moveRight() {
-        col++;
+        if (col < 5) { // Assuming a 6x6 grid
+            col++;
+        }
     }
 
     public void extinguish(Tree tree) {
