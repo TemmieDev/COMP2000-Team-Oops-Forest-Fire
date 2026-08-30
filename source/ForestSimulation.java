@@ -1,7 +1,6 @@
-import java.awt.Color;
+import java.awt.*;
+
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.Graphics;
 
 public class ForestSimulation{
 
@@ -10,6 +9,8 @@ public class ForestSimulation{
     private Water water;
     private Wind wind;
 
+    private ForestPanel forestPanel;
+
     public ForestSimulation(){
         //forest
         forest = new Forest(6, 6);
@@ -17,6 +18,14 @@ public class ForestSimulation{
         fire = new Fire();
         water = new Water(0, 0);
         wind = new Wind();
+
+        //GUI
+        forestPanel = new ForestPanel(forest, water);
+        JFrame frame = new JFrame("Forest Simulation");
+
+        frame.add(forestPanel);
+        frame.pack();
+        
     }
 
     public void startRandomFire() {
@@ -60,20 +69,6 @@ public class ForestSimulation{
 
         ForestSimulation simulation = new ForestSimulation();
         simulation.runSimulation();
-
-        /*Tree tree = new Tree(50, 50, 20);
-        JFrame frame = new JFrame("Test");
-        JPanel panel = new JPanel(){
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                tree.draw(g);
-            }
-        };
-        frame.add(panel);
-        frame.setSize(500,400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);*/
 
     }
 }
