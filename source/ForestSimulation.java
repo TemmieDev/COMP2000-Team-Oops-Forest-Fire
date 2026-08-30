@@ -5,6 +5,17 @@ import java.awt.Graphics;
 
 public class ForestSimulation{
 
+    private Forest forest;
+    private Fire fire;
+    private Water water;
+    private Wind wind;
+
+    public ForestSimulation(){
+        forest = new Forest(6, 6);
+        fire = new Fire();
+        water = new Water();
+        wind = new Wind();
+    }
     public static void main(String[] args){
         Tree tree = new Tree(50, 50, 20);
         JFrame frame = new JFrame("Test");

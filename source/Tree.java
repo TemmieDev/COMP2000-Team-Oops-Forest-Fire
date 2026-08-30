@@ -4,7 +4,8 @@ import java.awt.Graphics;
 //Creating the states for tree
 public class Tree {
     private String state;
-    public boolean isBurning;
+    private int burnTime;
+    private int restoreTime;
     private int x;
     private int y;
     private int size;
@@ -13,7 +14,7 @@ public class Tree {
         this.x = x;
         this.y = y;
         this.size = size;
-        state = "GREEN"; //green
+        state = "GREEN";
     }
 
     public void draw(Graphics g){
@@ -41,5 +42,13 @@ public class Tree {
 
     public String getState(){
         return state;
+    }
+
+    public int getBurnTime(){
+        return burnTime;
+    }
+
+    public int getRestoreTime(){
+        return restoreTime;
     }
 }
