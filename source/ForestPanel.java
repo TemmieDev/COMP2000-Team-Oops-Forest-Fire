@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class ForestPanel extends JPanel{
     private Forest forest;
@@ -28,21 +28,26 @@ public class ForestPanel extends JPanel{
     private void drawForest(Graphics g) {
         for (int row = 0; row < forest.getRows(); row++) {
             for (int col = 0; col < forest.getColumns(); col++) {
-                Tree tree = forest.getTree(row, col);
-                int x = col * CELL_SIZE;
-                int y = row * CELL_SIZE;
+                try {
+                    Tree tree = forest.getTree(row, col);
+                    int x = col * CELL_SIZE;
+                    int y = row * CELL_SIZE;
 
-                if(tree.getState().equals("GREEN")){
-                    g.setColor(Color.GREEN);
-                } else if(tree.getState().equals("BURNING")){
-                    g.setColor(Color.RED);
-                } else if(tree.getState().equals("BURNED")){
-                    g.setColor(Color.BLACK);
+                    switch (tree.getState()) {
+                        case GREEN -> g.setColor(Color.GREEN);
+                        case BURNING -> g.setColor(Color.RED);
+                        case BURNED -> g.setColor(Color.BLACK);
+                    }
+
+                    g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+                    g.setColor(Color.GRAY);
+                    g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
+                } catch (InvalidGridPositionException e) {
+                    // row/col come from forest.getRows()/getColumns() so this
+                    // is not expected to happen, but still have to satisfy
+                    // the checked exception rather than ignore it silently.
+                    System.out.println("Skipped drawing cell: " + e.getMessage());
                 }
-
-                g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                g.setColor(Color.GRAY);
-                g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
             }
         }
     }

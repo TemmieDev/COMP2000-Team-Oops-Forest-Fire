@@ -1,10 +1,10 @@
 public class Fire {
 
     public void startFire(Tree tree) {
-        
-        if (tree.getState().equals("GREEN")) {
+
+        if (tree.getState() == TreeState.GREEN) {
             tree.burn();
         }
     }
-    
+
 }
