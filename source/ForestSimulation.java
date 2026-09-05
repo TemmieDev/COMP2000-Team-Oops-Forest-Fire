@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.JFrame;
 
@@ -38,10 +37,18 @@ public class ForestSimulation implements KeyListener {
         // Start a random fire in the forest
         int row = (int) (Math.random() * forest.getRows());
         int col = (int) (Math.random() * forest.getColumns());
-        Tree tree = forest.getTree(row, col);
-        fire.startFire(tree);
 
-        System.out.println("Random fire started at (" + row + ", " + col + ")");
+        try {
+            Tree tree = forest.getTree(row, col);
+            fire.startFire(tree);
+            forest.reportBurning(tree);
+            System.out.println("Random fire started at (" + row + ", " + col + ")");
+        } catch (InvalidGridPositionException e) {
+            // Should not happen since row/col are generated from the
+            // forest's own dimensions, but handled defensively in case
+            // that generation logic ever changes.
+            System.out.println("Could not start fire: " + e.getMessage());
+        }
 
         panel.repaint();
     }
@@ -51,8 +58,13 @@ public class ForestSimulation implements KeyListener {
         int row = water.getRow();
         int col = water.getCol();
 
-        Tree tree = forest.getTree(row, col);
-        water.extinguish(tree);
+        try {
+            Tree tree = forest.getTree(row, col);
+            water.extinguish(tree);
+            forest.reportExtinguished(tree);
+        } catch (InvalidGridPositionException e) {
+            System.out.println("Could not use water: " + e.getMessage());
+        }
     }
 
     public void moveWater(String direction){
@@ -78,10 +90,7 @@ public class ForestSimulation implements KeyListener {
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             moveWater("RIGHT");
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            Tree tree = forest.getTree(water.getRow(), water.getCol());
-            if (tree.getState().equals("BURNING")) {
-                water.extinguish(tree);
-            }
+            useWater();
         }
 
         panel.repaint();
