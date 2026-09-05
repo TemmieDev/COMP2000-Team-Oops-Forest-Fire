@@ -45,26 +45,45 @@ public class ForestPanel extends JPanel{
     private void drawForest(Graphics2D g) {
         for (int row = 0; row < forest.getRows(); row++) {
             for (int col = 0; col < forest.getColumns(); col++) {
-                try {
+               try {
                     Tree tree = forest.getTree(row, col);
                     int x = col * CELL_SIZE;
                     int y = row * CELL_SIZE;
+                    int cx = x + CELL_SIZE / 2;
+                    int cy = y + CELL_SIZE / 2;
 
-                    switch (tree.getState()) {
-                        case GREEN -> g.setColor(Color.GREEN);
-                        case BURNING -> g.setColor(Color.RED);
-                        case BURNED -> g.setColor(Color.BLACK);
+                    int seed = (row * 31 + col * 17) % 100;
+    
+    
+                    if (tree.getState() == TreeState.GREEN) {
+                        // Ground: 80% green / 20% brown
+                        g.setColor(seed < 80 ? GROUND_GREEN : GROUND_BROWN);
+                        g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+    
+                        // Tree: one of 3 greens, picked randomly per tree
+                        int treeSeed = (row * 13 + col * 7) % TREE_GREEN.length;
+                        g.setColor(TREE_GREEN[treeSeed]);
+                        int r = CELL_SIZE / 2 - 14;
+                        g.fillOval(cx - r, cy - r, r * 2, r * 2);
+    
+                    } else if (tree.getState() == TreeState.BURNING) {
+                        drawScorchedGround(g, x, y, seed);
+                        g.setColor(FIRE_COLOR);
+                        int r = CELL_SIZE / 2 - 14;
+                        g.fillOval(cx - r, cy - r, r * 2, r * 2);
+    
+                    } else if (tree.getState() == TreeState.BURNED) {
+                        drawScorchedGround(g, x, y, seed);
+                        int r = CELL_SIZE / 5;
+                        g.setColor(BURNED_TREE_COLOR);
+                        g.fillOval(cx - r, cy - r, r * 2, r * 2);
                     }
 
-                    g.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                    g.setColor(Color.GRAY);
+                    g.setColor(new Color(0, 0, 0, 40));
                     g.drawRect(x, y, CELL_SIZE, CELL_SIZE);
-                } catch (InvalidGridPositionException e) {
-                    // row/col come from forest.getRows()/getColumns() so this
-                    // is not expected to happen, but still have to satisfy
-                    // the checked exception rather than ignore it silently.
-                    System.out.println("Skipped drawing cell: " + e.getMessage());
-                }
+               } catch (InvalidGridPositionException e) {
+                   System.out.println("Skipped drawing cell: " + e.getMessage());
+               }
             }
         }
     }
