@@ -38,14 +38,23 @@ public class Water {
     }
 
     public boolean extinguish(Tree tree) {
-        if (!available || tree == null || !tree.isBurning()){
-            return false;
-        } 
+       // Water cannot be used while charging
+    if (!available) {
+        return false;
+    }
 
-        tree.extinguish();
-        available = false;
-        rechargeProgress = 0;
-        return true;
+    // Only extinguish burning trees
+    if (tree == null || !tree.isBurning()) {
+        return false;
+    }
+
+    tree.extinguish();
+
+    // Disable water and begin recharge
+    available = false;
+    rechargeProgress = 0;
+
+    return true;
     }
 
     //called by forestsimulation
