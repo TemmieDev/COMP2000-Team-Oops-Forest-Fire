@@ -38,22 +38,31 @@ public class Water {
     }
 
     public boolean extinguish(Tree tree) {
-        if (available && tree.isBurning()) {
-            tree.extinguish();
-            available = false;
-            rechargeProgress = 0;
-            return true;
-        }
-        return false;
+        if (!available || tree == null || !tree.isBurning()){
+            return false;
+        } 
+
+        tree.extinguish();
+        available = false;
+        rechargeProgress = 0;
+        return true;
     }
 
-    public void setRechargeProgress(int progress) {
-        rechargeProgress = Math.max(0, 
-            Math.min(100, progress));
+    //called by forestsimulation
+    public void updateRecharge(int progress) {
+        if(available){
+            return;
+        }
 
-        if (rechargeProgress >= 100) {
+        rechargeProgress = Math.max(0, Math.min(100, progress));
+
+        if (rechargeProgress == 100) {
             available = true;
         }
+    }
+
+    public boolean isAvailable() {
+        return available;
     }
 
     public int getRechargeProgress() {

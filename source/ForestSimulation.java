@@ -7,25 +7,28 @@ public class ForestSimulation implements KeyListener {
     private Forest forest;
     private Fire fire;
     private Water water;
-    //private Wind wind;
+    // private Wind wind;
 
     private ForestPanel panel;
     private JFrame frame;
     private Timer fireTimer;
+    private Timer waterTimer;
 
     // How often the fire advances, in milliseconds. Slower than a redraw
     // tick so the spread is watchable rather than instant.
     private static final int FIRE_STEP_MS = 500;
 
-    public ForestSimulation(){
-        //forest
+    private static final int WATER_RECHARGE_MS = 10000; // 1 second
+
+    public ForestSimulation() {
+        // forest
         forest = new Forest(6, 6);
-        //objects
+        // objects
         fire = new Fire();
         water = new Water(0, 0);
-        //wind = new Wind();
+        // wind = new Wind();
 
-        //GUI
+        // GUI
         panel = new ForestPanel(forest, water);
         frame = new JFrame("Forest Simulation");
 
@@ -46,6 +49,8 @@ public class ForestSimulation implements KeyListener {
             panel.repaint();
         });
         fireTimer.start();
+
+        startRandomFire();
     }
 
     public void startRandomFire() {
@@ -68,35 +73,40 @@ public class ForestSimulation implements KeyListener {
         panel.repaint();
     }
 
-    //WATER
-    public void useWater(){
-        int row = water.getRow();
-        int col = water.getCol();
-
+    // WATER
+    public void useWater() {
         try {
-            Tree tree = forest.getTree(row, col);
-            water.extinguish(tree);
-            forest.reportExtinguished(tree);
+            Tree tree = forest.getTree(
+                    water.getRow(),
+                    water.getCol());
+
+            if (water.extinguish(tree)) {
+                forest.reportExtinguished(tree);
+                startWaterRecharge();
+            }
+
         } catch (InvalidGridPositionException e) {
             System.out.println("Could not use water: " + e.getMessage());
         }
+
+        panel.repaint();
     }
 
-    public void moveWater(String direction){
-        if(direction.equals("UP")){
+    public void moveWater(String direction) {
+        if (direction.equals("UP")) {
             water.moveUp();
-        } else if(direction.equals("DOWN")){
+        } else if (direction.equals("DOWN")) {
             water.moveDown(forest.getRows());
-        } else if(direction.equals("LEFT")){
+        } else if (direction.equals("LEFT")) {
             water.moveLeft();
-        } else if(direction.equals("RIGHT")){
+        } else if (direction.equals("RIGHT")) {
             water.moveRight(forest.getColumns());
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode()== KeyEvent.VK_UP) {
+        if (e.getKeyCode() == KeyEvent.VK_UP) {
             moveWater("UP");
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
             moveWater("DOWN");
@@ -110,28 +120,46 @@ public class ForestSimulation implements KeyListener {
 
         panel.repaint();
     }
+
     @Override
     public void keyReleased(KeyEvent e) {
         // Not used
     }
+
     @Override
     public void keyTyped(KeyEvent e) {
         // Not used
     }
 
-    //MAIN SIMULATION
-    public void runSimulation() {
-        System.out.println("Forest Simulation Started");
-        forest.displayForest();
+    private void startWaterRecharge() {
+        if (waterTimer != null && waterTimer.isRunning()) {
+            return;
+        }
 
-        startRandomFire();
-        forest.displayForest();
+        final long startTime = System.nanoTime();
+
+        waterTimer = new Timer(100, e -> {
+
+            long elapsedMs = (System.nanoTime() - startTime) / 1_000_000;
+
+            int progress = (int) Math.min(
+                    100,
+                    elapsedMs * 100 / WATER_RECHARGE_MS);
+
+            water.updateRecharge(progress);
+            panel.repaint();
+
+            if (progress >= 100) {
+                waterTimer.stop();
+            }
+        });
+
+        waterTimer.start();
 
     }
-    public static void main(String[] args){
 
-        ForestSimulation simulation = new ForestSimulation();
-        simulation.runSimulation();
+    public static void main(String[] args) {
+        new ForestSimulation();
 
     }
 }
