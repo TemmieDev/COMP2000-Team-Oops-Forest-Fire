@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Forest {
 
@@ -14,9 +15,26 @@ public class Forest {
         trees = new Tree[rows][columns];
         burningTrees = new ArrayList<>();
 
+        Random random = new Random();
+
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < columns; col++) {
-                trees[row][col] = new Tree();
+
+                int type = random.nextInt(3);
+
+                switch (type) {
+                    case 0:
+                        trees[row][col] = new Pine();
+                        break;
+
+                    case 1:
+                        trees[row][col] = new Oak();
+                        break;
+
+                    case 2:
+                        trees[row][col] = new Eucalyptus();
+                        break;
+                }
             }
         }
     }
@@ -63,5 +81,15 @@ public class Forest {
 
     public void displayForest() {
 
+    }
+
+    //temporary method
+    public void printTreeSpecies(){
+        for(Tree[] row : trees){
+            for(Tree tree : row){
+                System.out.print(tree.getSpecies() + " ");
+            }
+            System.out.println();
+        }
     }
 }

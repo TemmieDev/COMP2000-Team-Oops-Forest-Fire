@@ -16,9 +16,9 @@ public class ForestSimulation implements KeyListener {
 
     // How often the fire advances, in milliseconds. Slower than a redraw
     // tick so the spread is watchable rather than instant.
-    private static final int FIRE_STEP_MS = 500;
+    private static final int FIRE_STEP_MS = 2000;
 
-    private static final int WATER_RECHARGE_MS = 20000; // 1 second
+    private static final int WATER_RECHARGE_MS = 2000; // 1 second
 
     public ForestSimulation() {
         // forest
@@ -51,6 +51,8 @@ public class ForestSimulation implements KeyListener {
         fireTimer.start();
 
         startRandomFire();
+
+        forest.printTreeSpecies(); // Print the species of each tree in the forest
     }
 
     public void startRandomFire() {

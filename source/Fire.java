@@ -6,80 +6,70 @@ import java.util.Random;
 
 public class Fire {
 
-    private static final int BURN_DURATION_TICKS = 10;
-    private static final double SPREAD_CHANCE = 0.10;
-
-
-    private final Map<Tree, Integer> burnTimers = new HashMap<>();
+    // private static final int BURN_DURATION_TICKS = 10;
+    private static final double SPREAD_CHANCE = 0.25;
     private final Random random = new Random();
-    
+
+    // private final Map<Tree, Integer> burnTimers = new HashMap<>();
+    // private final Random random = new Random();
+
     public void startFire(Tree tree) {
-        
-        if (tree.getState() == TreeState.GREEN) {
+
+        if (tree != null && tree.isGreen()) {
             tree.burn();
-            burnTimers.put(tree, BURN_DURATION_TICKS);
         }
     }
 
     public void spread(Forest forest) {
- for (int row = 0; row < forest.getRows(); row++) {
+        List<Tree> burningAtStart =
+                new ArrayList<>(forest.getBurningTrees());
+
+        for (int row = 0; row < forest.getRows(); row++) {
             for (int col = 0; col < forest.getColumns(); col++) {
+
                 Tree tree;
+
                 try {
                     tree = forest.getTree(row, col);
                 } catch (InvalidGridPositionException e) {
-                    continue; 
+                    continue;
                 }
- 
-                if (tree.getState() == TreeState.BURNING) {
-                    burnTimers.putIfAbsent(tree, BURN_DURATION_TICKS);
- 
-                    tryIgnite(forest, row - 1, col);
-                    tryIgnite(forest, row + 1, col);
-                    tryIgnite(forest, row, col - 1);
-                    tryIgnite(forest, row, col + 1);
+
+                if (!tree.isBurning()
+                        || !burningAtStart.contains(tree)) {
+                    continue;
                 }
+
+                // Try spreading in four directions
+                tryIgnite(forest, row - 1, col);
+                tryIgnite(forest, row + 1, col);
+                tryIgnite(forest, row, col - 1);
+                tryIgnite(forest, row, col + 1);
             }
-        }
- 
-        List<Tree> finished = new ArrayList<>();
-        for (Map.Entry<Tree, Integer> entry : burnTimers.entrySet()) {
-            Tree tree = entry.getKey();
- 
-            if (tree.getState() != TreeState.BURNING) {
-                
-                finished.add(tree);
-                continue;
-            }
- 
-            int remaining = entry.getValue() - 1;
-            if (remaining <= 0) {
-                tree.extinguish();
-                forest.reportExtinguished(tree);
-                finished.add(tree);
-            } else {
-                entry.setValue(remaining);
-            }
-        }
-        for (Tree tree : finished) {
-            burnTimers.remove(tree);
         }
     }
- 
+
+
+
     private void tryIgnite(Forest forest, int row, int col) {
-        if (row < 0 || row >= forest.getRows() || col < 0 || col >= forest.getColumns()) {
+        if (row < 0 || row >= forest.getRows()
+                || col < 0 || col >= forest.getColumns()) {
             return;
         }
-        Tree neighbour;
+
         try {
-            neighbour = forest.getTree(row, col);
+            Tree neighbour = forest.getTree(row, col);
+
+            if (neighbour.isGreen()
+                    && random.nextDouble() < SPREAD_CHANCE) {
+
+                startFire(neighbour);
+                forest.reportBurning(neighbour);
+                System.out.println("Fire spread to (" + row + ", " + col + ")");
+            }
+
         } catch (InvalidGridPositionException e) {
-            return;
-        }
-        if (neighbour.getState() == TreeState.GREEN && random.nextDouble() < SPREAD_CHANCE) {
-            neighbour.burn();
-            burnTimers.put(neighbour, BURN_DURATION_TICKS);
-            forest.reportBurning(neighbour);
+            System.out.println(e.getMessage());
         }
     }
 }

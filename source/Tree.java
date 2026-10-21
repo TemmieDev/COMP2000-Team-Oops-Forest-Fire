@@ -40,4 +40,13 @@ public class Tree {
     public TreeState getState() {
         return state;
     }
+
+    public String getSpecies(){
+        return "Tree";
+    }
+
+    public double getIgnitionMultiplier(){
+        return 1.0;
+    }
+
 }
