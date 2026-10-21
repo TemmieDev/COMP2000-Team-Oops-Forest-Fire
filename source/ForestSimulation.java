@@ -51,6 +51,8 @@ public class ForestSimulation implements KeyListener {
         fireTimer.start();
 
         startRandomFire();
+
+        forest.printTreeSpecies(); // Print the species of each tree in the forest
     }
 
     public void startRandomFire() {
