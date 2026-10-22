@@ -1,6 +1,8 @@
 import java.awt.event.*;
 import javax.swing.JFrame;
 import javax.swing.Timer;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ForestSimulation implements KeyListener {
 
@@ -13,6 +15,7 @@ public class ForestSimulation implements KeyListener {
     private JFrame frame;
     private Timer fireTimer;
     private Timer waterTimer;
+    private Timer regrowthTimer;
 
     // How often the fire advances, in milliseconds. Slower than a redraw
     // tick so the spread is watchable rather than instant.
@@ -20,6 +23,9 @@ public class ForestSimulation implements KeyListener {
 
     private static final int WATER_RECHARGE_MS = 2000; // 1 second
 
+    private Map<Tree, Long> regrowingTrees = new HashMap<>();
+    public static final int REGROWTH_CHECK_MS = 100;
+    
     public ForestSimulation() {
         // forest
         forest = new Forest(6, 6);
@@ -49,10 +55,32 @@ public class ForestSimulation implements KeyListener {
             panel.repaint();
         });
         fireTimer.start();
-
+        startRegrowthTimer();
         startRandomFire();
 
         forest.printTreeSpecies(); // Print the species of each tree in the forest
+
+    }
+
+    private void startRegrowthTimer(){
+        regrowthTimer = new Timer(REGROWTH_CHECK_MS, e ->{
+            long currentTime = System.nanoTime();
+
+                regrowingTrees.entrySet().removeIf(entry -> {
+                    Tree tree = entry.getKey();
+                    long regrowthDeadLine = entry.getValue();
+
+                    if(currentTime >= regrowthDeadLine){
+                        if (tree.isBurned()){
+                            tree.regrow();
+                        }
+                        return true; 
+                    }
+                    return false;
+                });
+                panel.repaint();
+            });
+            regrowthTimer.start();
     }
 
     public void startRandomFire() {
@@ -84,6 +112,12 @@ public class ForestSimulation implements KeyListener {
 
             if (water.extinguish(tree)) {
                 forest.reportExtinguished(tree);
+
+                long regrowthTimeNs = tree.getRegrowthTime() * 1_000_000_000L; // Convert seconds to nanoseconds
+                long deadline = System.nanoTime() + regrowthTimeNs;
+                regrowingTrees.put(tree, deadline);
+
+
                 startWaterRecharge();
             }
 
@@ -159,6 +193,9 @@ public class ForestSimulation implements KeyListener {
         waterTimer.start();
 
     }
+
+
+
 
     public static void main(String[] args) {
         new ForestSimulation();

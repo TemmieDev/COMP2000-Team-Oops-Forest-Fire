@@ -19,6 +19,10 @@ public class Tree {
         changeState(TreeState.GREEN);
     }
 
+    public int getRegrowthTime() {
+        return 20;
+    }
+
     private void changeState(TreeState newState) {
         if (state.canTransitionTo(newState)) {
             state = newState;
