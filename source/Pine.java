@@ -8,5 +8,10 @@ public class Pine extends Tree {
     public double getIgnitionMultiplier() {
         return 1.0; // Pine trees are more flammable than generic trees
     }
+
+    @Override 
+    public int getRegrowthTime() {
+        return 15; // Pine trees regrow faster than generic trees
+    }
     
 }
