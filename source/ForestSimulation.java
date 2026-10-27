@@ -1,10 +1,14 @@
 import java.awt.event.*;
-import javax.swing.JFrame;
-import javax.swing.Timer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.Timer;
 
 public class ForestSimulation implements KeyListener {
+
+    private static final Logger LOGGER = Logger.getLogger(ForestSimulation.class.getName());
+    private static final int DEFAULT_SIZE = 6;
 
     private Forest forest;
     private Fire fire;
@@ -27,8 +31,12 @@ public class ForestSimulation implements KeyListener {
     public static final int REGROWTH_CHECK_MS = 100;
     
     public ForestSimulation() {
+        this(DEFAULT_SIZE, DEFAULT_SIZE);
+    }
+
+    public ForestSimulation(int rows, int columns) {
         // forest
-        forest = new Forest(6, 6);
+        forest = createForest(rows, columns);
         // objects
         fire = new Fire();
         water = new Water(0, 0);
@@ -60,6 +68,26 @@ public class ForestSimulation implements KeyListener {
 
         forest.printTreeSpecies(); // Print the species of each tree in the forest
 
+    }
+
+    /**
+     * Builds the forest, recovering from a bad size by falling back to the
+     * default one so the simulation still starts.
+     */
+    private static Forest createForest(int rows, int columns) {
+        try {
+            return new Forest(rows, columns);
+        } catch (InvalidGridSizeException e) {
+            LOGGER.warning(e.getMessage() + " - using " + DEFAULT_SIZE + " x "
+                    + DEFAULT_SIZE + " instead");
+            try {
+                return new Forest(DEFAULT_SIZE, DEFAULT_SIZE);
+            } catch (InvalidGridSizeException impossible) {
+                // The default is a compile-time constant that is valid, so
+                // reaching here means the code itself is broken.
+                throw new IllegalStateException("Default forest size is invalid", impossible);
+            }
+        }
     }
 
     private void startRegrowthTimer(){
@@ -197,8 +225,24 @@ public class ForestSimulation implements KeyListener {
 
 
 
+    /**
+     * Optional arguments: [rows] [columns], e.g. "java ForestSimulation 8 10".
+     * Anything unusable falls back to the default size.
+     */
     public static void main(String[] args) {
-        new ForestSimulation();
-
+        int rows = DEFAULT_SIZE;
+        int columns = DEFAULT_SIZE;
+        try {
+            if (args.length >= 2) {
+                rows = Integer.parseInt(args[0]);
+                columns = Integer.parseInt(args[1]);
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warning("Grid size arguments must be whole numbers ("
+                    + e.getMessage() + ") - using the default size");
+            rows = DEFAULT_SIZE;
+            columns = DEFAULT_SIZE;
+        }
+        new ForestSimulation(rows, columns);
     }
 }
