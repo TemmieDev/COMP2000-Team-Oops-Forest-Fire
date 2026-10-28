@@ -27,6 +27,10 @@ public class ForestPanel extends JPanel {
         this.forest = forest;
         this.water = water;
 
+        // Observer: redraw whenever the forest reports a change, instead of
+        // relying on whoever caused the change to remember to call repaint().
+        forest.addListener(event -> repaint());
+
         setPreferredSize(new Dimension(
                 forest.getColumns() * CELL_SIZE,
                 forest.getRows() * CELL_SIZE + 40));
