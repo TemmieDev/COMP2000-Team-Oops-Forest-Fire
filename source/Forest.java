@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -21,6 +22,9 @@ public class Forest {
     // fire, so the rest of the program doesn't need to scan the whole grid
     // to find them.
     private List<Tree> burningTrees;
+
+    // Observers interested in what happens to the trees.
+    private final List<ForestListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * @throws InvalidGridSizeException if rows or columns is less than 1
@@ -83,6 +87,7 @@ public class Forest {
     public void reportBurning(Tree tree) {
         if (!burningTrees.contains(tree)) {
             burningTrees.add(tree);
+            notifyListeners(ForestEvent.Type.IGNITED, tree);
         }
     }
 
@@ -92,6 +97,32 @@ public class Forest {
      */
     public void reportExtinguished(Tree tree) {
         burningTrees.remove(tree);
+        notifyListeners(ForestEvent.Type.EXTINGUISHED, tree);
+    }
+
+    /** Records that a tree finished burning without help from the player. */
+    public void reportBurnedOut(Tree tree) {
+        burningTrees.remove(tree);
+        notifyListeners(ForestEvent.Type.BURNED_OUT, tree);
+    }
+
+    /** Records that a burned tree has grown back. */
+    public void reportRegrown(Tree tree) {
+        notifyListeners(ForestEvent.Type.REGROWN, tree);
+    }
+
+    public void addListener(ForestListener listener) {
+        listeners.add(listener);
+    }
+
+    /** Observers should call this when they go away, or the Forest keeps them alive. */
+    public void removeListener(ForestListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners(ForestEvent.Type type, Tree tree) {
+        ForestEvent event = new ForestEvent(type, tree);
+        listeners.forEach(listener -> listener.onForestEvent(event));
     }
 
     public List<Tree> getBurningTrees() {

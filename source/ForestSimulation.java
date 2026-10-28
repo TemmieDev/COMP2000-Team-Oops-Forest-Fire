@@ -1,9 +1,10 @@
+import java.awt.BorderLayout;
 import java.awt.event.*;
+import javax.swing.JFrame;
+import javax.swing.Timer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.Timer;
 
 public class ForestSimulation implements KeyListener {
 
@@ -16,6 +17,7 @@ public class ForestSimulation implements KeyListener {
     // private Wind wind;
 
     private ForestPanel panel;
+    private StatsPanel stats;
     private JFrame frame;
     private Timer fireTimer;
     private Timer waterTimer;
@@ -44,9 +46,11 @@ public class ForestSimulation implements KeyListener {
 
         // GUI
         panel = new ForestPanel(forest, water);
+        stats = new StatsPanel(forest, () -> "");
         frame = new JFrame("Forest Simulation");
 
-        frame.add(panel);
+        frame.add(stats, BorderLayout.NORTH);
+        frame.add(panel, BorderLayout.CENTER);
         frame.pack();
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
