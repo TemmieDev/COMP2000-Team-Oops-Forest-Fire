@@ -37,12 +37,17 @@ public class StatsPanel extends JPanel {
                 .entrySet().stream()
                 .map(e -> e.getKey() + " " + e.getValue())
                 .collect(Collectors.joining("  "));
-
+				
+		// Count the total number of times trees have caught fire.
+		long totalFires = forest.cells()
+				.mapToLong(cell -> cell.value().getTimesBurned())
+				.sum();
+				
         String extra = extraStatus.get();
-
         label.setText("<html>Green " + states.getOrDefault(TreeState.GREEN, 0L)
                 + "  |  Burning " + states.getOrDefault(TreeState.BURNING, 0L)
                 + "  |  Burned " + states.getOrDefault(TreeState.BURNED, 0L)
+				+ "  |  Total Fires " + totalFires
                 + (extra.isEmpty() ? "" : "  |  " + extra)
                 + "<br>Fuel left: " + fuel + "</html>");
     }
