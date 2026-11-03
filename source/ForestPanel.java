@@ -28,11 +28,24 @@ public class ForestPanel extends JPanel{
     private static final Color FIRE_COLOR = Color.decode("#911d10");
     private static final Color BURNED_TREE_COLOR = Color.decode("#211f1d");
     private static final Color WATER_COLOR = Color.decode("#1551a1");
+    private static final Color STATUS_TEXT_COLOR = Color.decode("#1b3618");
+
+    // One way of drawing a cell for each tree state
+    @FunctionalInterface
+    private interface CellPainter {
+        void paint(Graphics2D g, int row, int col);
+    }
+
+    private final Map<TreeState, CellPainter> painters = new EnumMap<>(TreeState.class);
     
     public ForestPanel(Forest forest, Water water) {
         this.forest = forest;
         this.water = water;
 
+        painters.put(TreeState.GREEN, this::paintGreen);
+        painters.put(TreeState.BURNING, this::paintBurning);
+        painters.put(TreeState.BURNED, this::paintBurned);
+        
         setPreferredSize(new Dimension(
             forest.getColumns() * CELL_SIZE, 
             forest.getRows() * CELL_SIZE + 40
@@ -46,6 +59,7 @@ public class ForestPanel extends JPanel{
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         drawForest(g);
         drawWater(g);
+        drawStatus(g);
     }
     
     private void drawForest(Graphics2D g) {
